@@ -128,13 +128,11 @@ def get_destination_coordinates(start_latitude, start_longitude, distance, num_c
             destination.append([dest_longitude, dest_latitude])
     return destination
 
-def generate_waypoints(start_latitude,start_longitude):
+def generate_waypoints(start_latitude,start_longitude, battery):
     distance = 500
     num_circle = 1
     destination = get_destination_coordinates(start_latitude, start_longitude, distance, num_circle)
-    current_battery_level = 100
-    
-
+    current_battery_level = battery
     combined_list =[]
     for i in range(len(destination)):
         coordinates = getTripCoordinate([start_longitude,start_latitude],destination[i])

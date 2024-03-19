@@ -16,23 +16,26 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
 }).addTo(map);
 
-function getalphashape(lat, lon){
-    fetch(`http://127.0.0.1:5000/alpha?lat=${lat}&lon=${lon}`)
+function getalphashape(lat, lon, battery){
+    fetch(`http://127.0.0.1:5000/alpha?lat=${lat}&lon=${lon}&battery=${battery}`)
     .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         return response.json();})
     .then(data => {
-        console.log(data);
+        console.log("data:",data);
         var colorlist = ['green', 'yellow', 'red']
         var count = 0
         data.forEach(element => {
-            var polygon = L.polygon(element,{
-                color: colorlist[count],
-                fillColor: colorlist[count],
-                weight: 1
-            }).addTo(map);
+            // Check if the element is an empty list
+            if (element.length > 0) {
+                var polygon = L.polygon(element,{
+                    color: colorlist[count],
+                    fillColor: colorlist[count],
+                    weight: 1
+                }).addTo(map);
+            }
             count++;
         });
     });
@@ -80,9 +83,10 @@ function refresh() {
     event.preventDefault();
     var latitude = document.getElementById('latitude').value;
     var longitude = document.getElementById('longitude').value;
+    var battery = document.getElementById('battery').value;
     refresh();
     map.setView([latitude, longitude], 7);
     show_starting_point(latitude, longitude);
     getchargingstation(latitude, longitude);
-    getalphashape(latitude, longitude);
+    getalphashape(latitude, longitude, battery);
 })
