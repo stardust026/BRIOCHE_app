@@ -10,20 +10,19 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <form id="coordinateForm">
-        <label for="starting-location">Starting Location:</label>
-        <div>
-            <label for="latitude">Latitude:</label>
-            <input type="text" id="latitude" name="latitude" placeholder="Please Enter Latitude">
-        </div>
-        <div>
-            <label for="longitude">Longitude:</label>
-            <input type="text" id="longitude" name="longitude" placeholder="Please Enter Longitude">
-        </div>
-        <button type="submit">Submit</button>
-    </form>
-    <div id="map"></div>
-    
+        <div id="map"></div>
+        <form id="coordinateForm">
+            <label for="starting-location">Starting Location:</label>
+            <div>
+                <label for="latitude">Latitude:</label>
+                <input type="text" id="latitude" name="latitude" placeholder="Please Enter Latitude">
+            </div>
+            <div>
+                <label for="longitude">Longitude:</label>
+                <input type="text" id="longitude" name="longitude" placeholder="Please Enter Longitude">
+            </div>
+            <button type="submit">Submit</button>
+        </form>
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
     <!-- Custom JavaScript -->

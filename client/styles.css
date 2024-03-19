@@ -5,8 +5,8 @@ body, html {
 }
 
 #map {
-    width: 80%;
-    height: 80%;
+    width: 99%;
+    height: 99%;
 }
 
 form {
@@ -31,3 +31,14 @@ button[type="submit"] {
     border: none;
     cursor: pointer;
 }
+#coordinateForm {
+    /* Add or modify CSS properties here */
+    background-color: #f0f0f0; /* Example background color */
+    border-radius: 5px; /* Example border radius */
+    top:1%;/* Adjust width as needed */
+    right:1%;
+    width: 200px;
+    position: fixed;
+    z-index: 999;
+}
+
