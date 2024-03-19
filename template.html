@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Custom Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Folium CSS -->
+    
+</head>
+<body>
+    <h1>My Custom Map</h1>
+    <!-- Folium map will be inserted here -->
+    {{ map | safe }}
+    <!-- Folium JavaScript -->
+    <script>{{ event | safe }}</script>
+    
+</body>
+</html>
