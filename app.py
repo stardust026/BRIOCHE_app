@@ -14,7 +14,8 @@ def hello():
 def get_alpha_shape():
     lat = float(request.args.get('lat'))
     lon = float(request.args.get('lon'))
-    processed_data = return_alpha_shape(lat,lon)
+    battery = float(request.args.get('battery')) 
+    processed_data = return_alpha_shape(lat,lon,battery)
     return jsonify(processed_data)
 
 @app.route('/station')

@@ -99,9 +99,9 @@ def draw_starting_point(map_object, coordinate):
 # Config
 # Vancouver coordinates: 49.246292, -123.116226
 # Calgary coordinates: 51.0276233, -114.087835
-def return_alpha_shape(start_latitude,start_longitude):
+def return_alpha_shape(start_latitude,start_longitude, battery):
     # center_coordinate = [start_latitude, start_longitude]
-    df = generate_waypoints(start_latitude,start_longitude)
+    df = generate_waypoints(start_latitude,start_longitude, battery)
     alpha = 0.5
 
     # csv_name = 'EV_data.csv'
@@ -146,11 +146,22 @@ def return_alpha_shape(start_latitude,start_longitude):
         if item[2] > 70:
             green_points.append([item[0], item[1]])
 
-    green = alphashape.alphashape(green_points, alpha)
-    yellow = alphashape.alphashape(yellow_points, alpha)
-    red = alphashape.alphashape(red_points, alpha)
     list = []
-    list.append([(i[0], i[1]) for i in green.exterior.coords])
-    list.append([(i[0], i[1]) for i in yellow.exterior.coords])
-    list.append([(i[0], i[1]) for i in red.exterior.coords])
+    if len(green_points) >= 3:
+        green = alphashape.alphashape(green_points, alpha)
+        list.append([(i[0], i[1]) for i in green.exterior.coords])
+    else:
+        list.append([])
+        
+    if len(yellow_points) >= 3:
+        yellow = alphashape.alphashape(yellow_points, alpha)
+        list.append([(i[0], i[1]) for i in yellow.exterior.coords])
+    else:
+        list.append([])
+    if len(red_points) >= 3:
+        red = alphashape.alphashape(red_points, alpha)
+        list.append([(i[0], i[1]) for i in red.exterior.coords])
+    else:
+        list.append([])
+        
     return list

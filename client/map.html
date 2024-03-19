@@ -1,31 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Map</title>
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-        <div id="map"></div>
-        <form id="coordinateForm">
-            <label for="starting-location">Starting Location:</label>
-            <div>
-                <label for="latitude">Latitude:</label>
-                <input type="text" id="latitude" name="latitude" placeholder="Please Enter Latitude">
-            </div>
-            <div>
-                <label for="longitude">Longitude:</label>
-                <input type="text" id="longitude" name="longitude" placeholder="Please Enter Longitude">
-            </div>
-            <button type="submit">Submit</button>
-        </form>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="map"></div>
+    <form id="coordinateForm">
+      <label for="starting-location">Starting Location:</label>
+      <div>
+        <label for="latitude">Latitude:</label>
+        <input
+          type="text"
+          id="latitude"
+          name="latitude"
+          placeholder="Please Enter Latitude"
+        />
+      </div>
+      <div>
+        <label for="longitude">Longitude:</label>
+        <input
+          type="text"
+          id="longitude"
+          name="longitude"
+          placeholder="Please Enter Longitude"
+        />
+      </div>
+      <div>
+        <label for="battery">Initial Battery Level:</label>
+        <input
+          type="text"
+          id="battery"
+          name="battery"
+          placeholder="Please Enter Battery Level"
+        />
+      </div>
+      <button type="submit">Submit</button>
+    </form>
     <!-- Leaflet JavaScript -->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script
+      src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""
+    ></script>
     <!-- Custom JavaScript -->
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
