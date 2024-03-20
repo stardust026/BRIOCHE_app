@@ -37,7 +37,7 @@ def getTripCoordinate(origin, destination,profile='mapbox/driving-traffic'):
         return coordinate
         
     else:
-        print("response failed, status code:", response.status_code)
+        print("response failed (Get Distance), status code:", response.status_code)
         return False
 
 def getTripDistance(tripCoordinate,profile='mapbox/driving-traffic',):
@@ -64,7 +64,7 @@ def getTripDistance(tripCoordinate,profile='mapbox/driving-traffic',):
             for leg in leg_data:
                 duration_distance_pairs.append((leg['duration'], leg['distance']))
         else:
-            print("Response failed, status code:", response.status_code)
+            print("Response failed (Get Distance), status code:", response.status_code)
             return None
     
 
