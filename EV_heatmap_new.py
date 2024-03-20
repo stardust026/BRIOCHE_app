@@ -99,7 +99,7 @@ def draw_starting_point(map_object, coordinate):
 # Config
 # Vancouver coordinates: 49.246292, -123.116226
 # Calgary coordinates: 51.0276233, -114.087835
-def return_alpha_shape(start_latitude,start_longitude, battery):
+def return_alpha_shape(start_latitude,start_longitude, battery=100):
     # center_coordinate = [start_latitude, start_longitude]
     df = generate_waypoints(start_latitude,start_longitude, battery)
     alpha = 0.5
