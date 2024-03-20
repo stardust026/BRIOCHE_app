@@ -16,12 +16,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
 }).addTo(map);
 
-function getTripCoordinate(lat, lon) {
+async function getTripCoordinate(lat, lon) {
     const origin = [start[1],start[0]]
-    console.log("origin:", origin);
     const profile='mapbox/driving-traffic'
     const destination = [lon.toString(),lat.toString()]
-    console.log("destination:", destination);
     const originStr = origin[0] + ',' + origin[1];
     const destinationStr = destination[0] + ',' + destination[1];
     const coordinates = originStr + ';' + destinationStr;
@@ -80,7 +78,7 @@ function getalphashape(lat, lon, battery=100){
     });
     }
 
-function getchargingstation(lat, lon){
+async function getchargingstation(lat, lon){
     fetch(`http://127.0.0.1:5000/station?lat=${lat}&lon=${lon}`)
     .then((response) => {
         if (!response.ok) {
@@ -92,13 +90,14 @@ function getchargingstation(lat, lon){
         data.forEach(element => {
             var icon = L.icon({iconUrl: 'charging_station.png',iconSize: [20, 20]})
             var marker = L.marker([element.lat, element.lon],{icon:icon}).addTo(map);
-            marker.addEventListener('click', function() {
+            marker.addEventListener('click', async function() {
                 refresh_shapeAndLine();
-                const coordinates = getTripCoordinate(element.lat, element.lon);
+                const coordinates = await getTripCoordinate(element.lat, element.lon);
                 if (coordinates) {
                     console.log("Coordinates:", coordinates);
                     var polyline = L.polyline(coordinates, {color: 'blue'
                     ,weight: 5,smoothFactor: 1}).addTo(map); 
+                    show_starting_point(element.lat,element.lon)
                 } else {
                     console.log("Failed to fetch trip coordinates.");
                 }
@@ -142,8 +141,9 @@ function refresh_shapeAndLine() {
     refresh();
     map.setView([latitude, longitude], 7);
     show_starting_point(latitude, longitude);
-    getchargingstation(latitude, longitude);
     getalphashape(latitude, longitude, battery);
+    await getchargingstation(latitude, longitude);
+    
     // const coordinates = await getTripCoordinate(latitude, longitude);
     // if (coordinates) {
     //     console.log("Coordinates:", coordinates);
