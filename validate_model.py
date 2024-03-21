@@ -135,7 +135,7 @@ def calculate_average_error_rate(api_key, start_latitude, start_longitude, energ
     url = f'https://api.tomtom.com/routing/1/calculateReachableRange/{start_latitude},{start_longitude}/json?key={api_key}&energyBudgetInkWh={energy_budget}&report={report}&routeType={route_type}&traffic={traffic}&travelMode={travel_mode}&vehicleCommercial={vehicle_commercial}&vehicleEngineType={vehicle_engine_type}&vehicleWeight={vehicleWeight}&vehicleLength={vehicleLength}&vehicleWidth={vehicleWidth}&vehicleHeight={vehicleHeight}&vehicleMaxSpeed={vehicleMaxSpeed}&constantSpeedConsumptionInkWhPerHundredkm={constant_speed_consumption}&auxiliaryPowerInkW={auxiliaryPowerInkW}'
 
     response = requests.get(url)
-    print(response.json())
+    print("response = ",response)
     boundary_points = response.json()['reachableRange']['boundary']
     coordinates = [(point['longitude'], point['latitude']) for point in boundary_points]
 
@@ -155,8 +155,10 @@ def calculate_average_error_rate(api_key, start_latitude, start_longitude, energ
 
 if __name__ == "__main__":
     api_key = 'r4PwmREcA5rPk7PR9DBYFPQ6sKiQ4ZyE'
-    start_latitude =   23.831757    #纬度
-    start_longitude =   107.576099 #经度
+
+    # start_latitude =   23.831757    #纬度
+    # start_longitude =   107.576099 #经度
+    start_coordinates = [26.022068, 113.474056]  # [latitude, longitude]
     energy_budget = BATTERY_CAPACITY/1000
     report = 'effectiveSettings'
     route_type = 'eco'
@@ -173,5 +175,5 @@ if __name__ == "__main__":
     constant_speed_consumption = '45,10.7:110,16.3'
     auxiliaryPowerInkW = 0
 
-    average_error_rate = calculate_average_error_rate(api_key, start_latitude, start_longitude, energy_budget, report, route_type, traffic, travel_mode, vehicle_commercial, vehicle_engine_type, vehicleWeight, vehicleLength, vehicleWidth, vehicleHeight, vehicleMaxSpeed, constant_speed_consumption, auxiliaryPowerInkW)
-    print("Average Error Rate:", average_error_rate)
+    average_error_rate = calculate_average_error_rate(api_key, start_coordinates[0], start_coordinates[1], energy_budget, report, route_type, traffic, travel_mode, vehicle_commercial, vehicle_engine_type, vehicleWeight, vehicleLength, vehicleWidth, vehicleHeight, vehicleMaxSpeed, constant_speed_consumption, auxiliaryPowerInkW)
+    print(start_coordinates[0],",",start_coordinates[1],",Average Error Rate:", average_error_rate)
