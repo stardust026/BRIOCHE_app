@@ -132,11 +132,33 @@ function refresh_shapeAndLine() {
     })
 }
 
+async function geocodeAddress(address) {
+    return new Promise((resolve, reject) => {
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({'address': address}, function(results, status) {
+            if (status === 'OK' && results[0]) {
+                var latitude = results[0].geometry.location.lat();
+                var longitude = results[0].geometry.location.lng();
+                resolve([latitude, longitude]);
+            } else {
+                reject('Geocode was not successful for the following reason: ' + status);
+            }
+        });
+    });
+}
+
     document.getElementById('coordinateForm').addEventListener('submit', async function(event) {
     event.preventDefault();
-    var latitude = document.getElementById('latitude').value;
-    var longitude = document.getElementById('longitude').value;
-    var battery = document.getElementById('battery').value;
+    // var latitude = document.getElementById('latitude').value;
+    // var longitude = document.getElementById('longitude').value;
+    var addressInput = document.getElementById('address').value;
+    var batteryInput = document.getElementById('battery').value;
+
+    var address = addressInput !== '' ? addressInput : "2922 10 St SW, Calgary";
+
+    var battery = batteryInput !== '' ? batteryInput : "100";
+    
+    var [latitude, longitude] = await geocodeAddress(address);
     start = [latitude, longitude];
     refresh();
     map.setView([latitude, longitude], 7);
