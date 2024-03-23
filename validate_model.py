@@ -155,8 +155,7 @@ def calculate_average_error_rate(api_key, start_latitude, start_longitude, energ
 
 if __name__ == "__main__":
     api_key = 'r4PwmREcA5rPk7PR9DBYFPQ6sKiQ4ZyE'
-    start_latitude =   51    #纬度
-    start_longitude =  -120 #经度
+    start_coordinates = [51, -120]  # [latitude, longitude]
     energy_budget = BATTERY_CAPACITY/1000
     report = 'effectiveSettings'
     route_type = 'eco'
@@ -173,5 +172,5 @@ if __name__ == "__main__":
     constant_speed_consumption = '60,10.4:110,15.6'
     auxiliaryPowerInkW = 0
 
-    average_error_rate = calculate_average_error_rate(api_key, start_latitude, start_longitude, energy_budget, report, route_type, traffic, travel_mode, vehicle_commercial, vehicle_engine_type, vehicleWeight, vehicleLength, vehicleWidth, vehicleHeight, vehicleMaxSpeed, constant_speed_consumption, auxiliaryPowerInkW)
-    print("Average Error Rate:", average_error_rate)
+    average_error_rate = calculate_average_error_rate(api_key, start_coordinates[0], start_coordinates[1], energy_budget, report, route_type, traffic, travel_mode, vehicle_commercial, vehicle_engine_type, vehicleWeight, vehicleLength, vehicleWidth, vehicleHeight, vehicleMaxSpeed, constant_speed_consumption, auxiliaryPowerInkW)
+    print(start_coordinates[0],",",start_coordinates[1],",Average Error Rate:", average_error_rate)
