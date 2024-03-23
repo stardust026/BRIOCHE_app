@@ -7,6 +7,7 @@ HEIGHT = 1.4 ## vehicle's height (m)
 MAXSPEED = 233 ## vehicle max speed (km/h)
 GRAVITY = 9.8066
 CR = 1.75 ##road surface type resistance
+CI = 1.15 ##inertia coefficient
 C1 = 0.0328 ##road condition resistance
 C2 = 4.575 ##vehicle type resistance
 CD = 0.23 ##aerodynamic drag coefficient

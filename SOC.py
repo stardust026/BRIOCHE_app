@@ -3,6 +3,7 @@ from globalDefinition import (
     BATTERY_CAPACITY,
     MASS,
     GRAVITY,
+    CI,
     CR,
     C1,
     C2,
@@ -19,7 +20,7 @@ def getPowerMotor(acceleration, velocity, road_grade):
     gradient_resistance_force = MASS*GRAVITY*math.sin(road_grade_radian)
     rolling_resistance_force = MASS*GRAVITY*math.cos(road_grade_radian)*CR*(C1*velocity+C2)/1000
     aerodynamic_drag_force = 0.5*(PA*AF*CD*math.pow(velocity,2))
-    Inertia_resistance_force = MASS * acceleration
+    Inertia_resistance_force = CI*MASS * acceleration
     power_of_wheel = (gradient_resistance_force+rolling_resistance_force+aerodynamic_drag_force+Inertia_resistance_force)*velocity
     power_of_motor = power_of_wheel/(ED*EM*EB)
     return power_of_motor
