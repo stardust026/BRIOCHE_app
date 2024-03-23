@@ -155,9 +155,7 @@ def calculate_average_error_rate(api_key, start_latitude, start_longitude, energ
 
 if __name__ == "__main__":
     api_key = 'r4PwmREcA5rPk7PR9DBYFPQ6sKiQ4ZyE'
-    start_latitude =   51    #纬度
-    start_longitude =  -120 #经度
-    start_coordinates = [26.022068, 113.474056]  # [latitude, longitude]
+    start_coordinates = [51, -120]  # [latitude, longitude]
     energy_budget = BATTERY_CAPACITY/1000
     report = 'effectiveSettings'
     route_type = 'eco'
