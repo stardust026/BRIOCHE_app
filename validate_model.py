@@ -135,7 +135,7 @@ def calculate_average_error_rate(api_key, start_latitude, start_longitude, energ
     url = f'https://api.tomtom.com/routing/1/calculateReachableRange/{start_latitude},{start_longitude}/json?key={api_key}&energyBudgetInkWh={energy_budget}&report={report}&routeType={route_type}&traffic={traffic}&travelMode={travel_mode}&vehicleCommercial={vehicle_commercial}&vehicleEngineType={vehicle_engine_type}&vehicleWeight={vehicleWeight}&vehicleLength={vehicleLength}&vehicleWidth={vehicleWidth}&vehicleHeight={vehicleHeight}&vehicleMaxSpeed={vehicleMaxSpeed}&constantSpeedConsumptionInkWhPerHundredkm={constant_speed_consumption}&auxiliaryPowerInkW={auxiliaryPowerInkW}'
 
     response = requests.get(url)
-    print(response.json())
+    print("response = ",response)
     boundary_points = response.json()['reachableRange']['boundary']
     coordinates = [(point['longitude'], point['latitude']) for point in boundary_points]
 
