@@ -138,7 +138,7 @@ def calculate_average_error_rate(api_key, start_latitude, start_longitude, energ
     url = f'https://api.tomtom.com/routing/1/calculateReachableRange/{start_latitude},{start_longitude}/json?key={api_key}&energyBudgetInkWh={energy_budget}&report={report}&routeType={route_type}&traffic={traffic}&travelMode={travel_mode}&vehicleCommercial={vehicle_commercial}&vehicleEngineType={vehicle_engine_type}&vehicleWeight={vehicleWeight}&vehicleLength={vehicleLength}&vehicleWidth={vehicleWidth}&vehicleHeight={vehicleHeight}&vehicleMaxSpeed={vehicleMaxSpeed}&constantSpeedConsumptionInkWhPerHundredkm={constant_speed_consumption}&auxiliaryPowerInkW={auxiliaryPowerInkW}'
 
     response = requests.get(url)
-    print("response = ",response)
+    # print("response = ",response)
     boundary_points = response.json()['reachableRange']['boundary']
     coordinates = [(point['longitude'], point['latitude']) for point in boundary_points]
 
@@ -158,7 +158,38 @@ def calculate_average_error_rate(api_key, start_latitude, start_longitude, energ
 
 if __name__ == "__main__":
     api_key = 'r4PwmREcA5rPk7PR9DBYFPQ6sKiQ4ZyE'
-    start_coordinates = [51, -120]  # [latitude, longitude]
+    coordinates_list = [
+        [40.080111, 116.584556],
+        [49.009722, 2.547778],
+        [49.009722, 2.547778],
+        [39.535362, -119.778275],
+        [39.051868, -113.966185],
+        [50.467376, -105.939465],
+        [36.679295, 117.755042],
+        [32.950435, 102.952277],
+        [25.806017, 112.039123],
+        [23.831757, 107.576099],
+        [49.900293, -107.211986],
+        [44.643642, -97.038647],
+        [37.298903, -96.096560],
+        [36.807904, -81.792360],
+        [36.490585, -106.619156],
+        [42.519427, -102.664078],
+        [48.89248, -110.486343],
+        [48.989905, -120.25074],
+        [41.736173, -110.383822],
+        [41.932628, -103.352571],
+        [39.694365, -80.412662],
+        [31.48942, 104.772886],
+        [30.510058, 114.880308],
+        [33.197173, 5.280699],
+        [45.324987, 2.292418],
+        [49.026942, 10.202574],
+        [51.003269, 18.464292],
+        [49.142069, 24.880307],
+        [44.515961, 24.704526],
+        [26.022068, 113.474056]  # Add the last coordinate as well
+    ]
     energy_budget = BATTERY_CAPACITY/1000
     report = 'effectiveSettings'
     route_type = 'eco'
@@ -175,5 +206,6 @@ if __name__ == "__main__":
     constant_speed_consumption = '60,10.4:110,15.6'
     auxiliaryPowerInkW = 0
 
-    average_error_rate = calculate_average_error_rate(api_key, start_coordinates[0], start_coordinates[1], energy_budget, report, route_type, traffic, travel_mode, vehicle_commercial, vehicle_engine_type, vehicleWeight, vehicleLength, vehicleWidth, vehicleHeight, vehicleMaxSpeed, constant_speed_consumption, auxiliaryPowerInkW)
-    print(start_coordinates[0],",",start_coordinates[1],",Average Error Rate:", average_error_rate)
+    for coordinates in coordinates_list:
+        average_error_rate = calculate_average_error_rate(api_key, coordinates[0], coordinates[1], energy_budget, report, route_type, traffic, travel_mode, vehicle_commercial, vehicle_engine_type, vehicleWeight, vehicleLength, vehicleWidth, vehicleHeight, vehicleMaxSpeed, constant_speed_consumption, auxiliaryPowerInkW)
+        print("({}, {}) - Average Error Rate: {}".format(coordinates[0], coordinates[1], average_error_rate))
