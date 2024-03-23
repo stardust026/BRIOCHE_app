@@ -115,7 +115,13 @@ def return_alpha_shape(start_latitude,start_longitude, battery=100):
     lat = float(start_latitude)
     lon = float(start_longitude)
 
-    grid_x, grid_y = np.mgrid[lon-8:lon+8:50j, lat-5:lat+5:50j]
+    # return the max and min latitude and longitude
+    max_lat = max(df['Latitude'])
+    min_lat = min(df['Latitude'])
+    max_lon = max(df['Longitude'])
+    min_lon = min(df['Longitude'])
+
+    grid_x, grid_y = np.mgrid[min_lon:max_lon:50j, min_lat:max_lat:50j]
 
     # interpolate the data
     grid_z0 = griddata(grid_data, battery_levels, (grid_x, grid_y), method='linear')

@@ -121,31 +121,37 @@ def getChargePair(tripdistance, current_battery_level):
     print("total_duration: ", total_duration, "total_distance:", total_distance)
     return charge_list
 
-def get_destination_coordinates(start_latitude, start_longitude, distance, num_circle = 1):
+def get_destination_coordinates(start_latitude, start_longitude, distance, battery_level):
     
-    destination = []
-    d = math.floor(distance/num_circle)
-    for j in range(d, distance+1, d):
-        for i in range(0, 360, 30):
-            dest_point = geodesic(kilometers=j).destination((start_latitude, start_longitude), i)
+    combined_list = []
+    for i in range(0, 360, 30):
+        for k in range(distance, 50, -75):
+            dest_point = geodesic(kilometers=k).destination((start_latitude, start_longitude), i)
             dest_latitude = dest_point.latitude
             dest_longitude = dest_point.longitude
-            destination.append([dest_longitude, dest_latitude])
-    return destination
+            coordinates = getTripCoordinate([start_longitude,start_latitude],[dest_longitude, dest_latitude])
+            print("hi")
+            if coordinates != False:
+                break
+        if coordinates == False:
+            continue
+        tripdistance =  getTripDistance(coordinates)
+        charge = getChargePair(tripdistance, battery_level)
+        combined_list.extend([coord[0], coord[1], float(charge[0]),float(charge[1]),float(charge[2])] for coord, charge in zip(coordinates, charge))
+    return combined_list
 
 def generate_waypoints(start_latitude,start_longitude, battery):
     distance = 500
-    num_circle = 1
-    destination = get_destination_coordinates(start_latitude, start_longitude, distance, num_circle)
     current_battery_level = battery
-    combined_list =[]
-    for i in range(len(destination)):
-        coordinates = getTripCoordinate([start_longitude,start_latitude],destination[i])
-        if coordinates == False:
-          continue 
-        tripdistance =  getTripDistance(coordinates)
-        charge = getChargePair(tripdistance, current_battery_level)
-        combined_list.extend([coord[0], coord[1], float(charge[0]),float(charge[1]),float(charge[2])] for coord, charge in zip(coordinates, charge))
+    combined_list = get_destination_coordinates(start_latitude, start_longitude, distance,current_battery_level)
+    # combined_list =[]
+    # for i in range(len(destination)):
+    #     coordinates = getTripCoordinate([start_longitude,start_latitude],destination[i])
+    #     if coordinates == False:
+    #       continue 
+    #     tripdistance =  getTripDistance(coordinates)
+    #     charge = getChargePair(tripdistance, current_battery_level)
+    #     combined_list.extend([coord[0], coord[1], float(charge[0]),float(charge[1]),float(charge[2])] for coord, charge in zip(coordinates, charge))
 
     # create columns
     columns = ['Longitude', 'Latitude', 'Battery_Level', 'Total Duration', 'Total Distance']
@@ -153,8 +159,4 @@ def generate_waypoints(start_latitude,start_longitude, battery):
     # create a data frame
     df = pd.DataFrame(combined_list, columns=columns)
     return df
-
-    # data frame to csv
-    # csv_file_name = 'EV_data.csv'
-    # df.to_csv(csv_file_name, index=False)
 
