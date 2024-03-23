@@ -96,13 +96,16 @@ def getChargePair(tripdistance, current_battery_level):
         else:
             road_grade = math.degrees(math.atan(elevation / distance))
             velocity = distance / duration
-
-            if velocity > previous_speed:
-                acceleration = 2.38 * math.exp(-0.1 * previous_speed)
+            max_acceleration = 3
+            if velocity>previous_speed:
+                if (velocity-previous_speed)>10*1000/3600:
+                    acceleration = max_acceleration
+                else:
+                    acceleration = (max_acceleration/10)*(velocity-previous_speed)
                 acceleration_time = (velocity - previous_speed) / acceleration
                 charge = min(100, privous_charge - (getStateOfCharge(acceleration, velocity, road_grade) * acceleration_time + getStateOfCharge(0, velocity, road_grade) * (duration - acceleration_time)) * 100)
             elif previous_speed > velocity:
-                deceleration = 0.005*math.pow(previous_speed,2)+0.15*previous_speed+0.5
+                deceleration = -(0.005*math.pow(previous_speed,2)+0.154*previous_speed+0.493)
                 deceleration_time = (velocity - previous_speed) / deceleration
                 charge = min(100, privous_charge - (getStateOfCharge(deceleration, velocity, road_grade) * deceleration_time + getStateOfCharge(0, velocity, road_grade) * (duration - deceleration_time)) * 100)
             else:
