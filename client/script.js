@@ -16,6 +16,45 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
 }).addTo(map);
 
+function getColor(d) {
+    var value = parseFloat(d.replace('>', '').replace('%', ''));
+    return value === 70 ? "darkgreen" :
+           value === 35 ? "yellow" :
+           value === 0 ? "red" : "black";
+}
+var legend = L.control({position: 'bottomright'});
+legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend');
+    var categories = ['>70%', '>35%', '>0%'];
+
+    var circleHTML = '<div style="width: 80%;">'; // Opening div tag to wrap circle elements, labels, and categories
+
+    circleHTML += '<div style="font-size: 14px;">' + '<strong>Battery Level</strong>' + '</div>'; // Wrapping the labels
+
+    for (var i = 0; i < categories.length; i++) {
+        var color = getColor(categories[i]);
+        circleHTML +=
+        '<div style="width: 100%; display: flex; align-items: center;">' +
+        '<i class="circle" style="border-radius:50%; padding: 5px; padding-bottom: 5px; background-color:' +  color + '; width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px"></i>' + // Adjusting dimensions of circle
+        '<span style="font-size: 16px;">' + (categories[i] ? categories[i] : '+') + '</span>' + // Adjusting font size of text
+        '</div>';
+    }
+
+    circleHTML += '</div>'; // Closing div tag to wrap circle elements, labels, and categories
+
+    div.innerHTML = circleHTML;
+    return div;
+};
+
+legend.addTo(map);
+
+var legendContainer = legend.getContainer();
+legendContainer.style.width = '100%';
+legendContainer.style.height = '100px';
+legendContainer.style.marginBottom = '20px';
+legendContainer.style.marginLeft = '15px';
+
 async function getTripCoordinate(lat, lon) {
     const origin = [start[1],start[0]]
     const profile='mapbox/driving-traffic'
@@ -107,10 +146,6 @@ async function getchargingstation(lat, lon){
     })
 }
 
-function charging_station(lat, lon) {
-    
-}
-
 
 function show_starting_point(lat, lon) {
     L.marker([lat, lon],{icon:carIcon}).addTo(map);
@@ -165,7 +200,7 @@ async function geocodeAddress(address) {
     show_starting_point(latitude, longitude);
     getalphashape(latitude, longitude, battery);
     await getchargingstation(latitude, longitude);
-    
+   
     // const coordinates = await getTripCoordinate(latitude, longitude);
     // if (coordinates) {
     //     console.log("Coordinates:", coordinates);
