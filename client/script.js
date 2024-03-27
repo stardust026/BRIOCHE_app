@@ -11,15 +11,19 @@ var carIcon = L.icon({
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
+var chunk_size = 5
+
 // add an OpenStreetMap tile layer
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+ attribution: '&copy; <a href=" ">OpenStreetMap</a > contributors &copy; <a href="https://carto.com/attributions">CARTO</a >',
+ subdomains: 'abcd',
+ maxZoom: 20
 }).addTo(map);
 
 function getColor(d) {
     var value = parseFloat(d.replace('>', '').replace('%', ''));
     return value === 70 ? "darkgreen" :
-           value === 35 ? "yellow" :
+           value === 35 ? "#BA4A00" :
            value === 0 ? "red" : "black";
 }
 var legend = L.control({position: 'bottomright'});
@@ -82,9 +86,11 @@ async function getTripCoordinate(lat, lon) {
             const swappedCoordinates = [];
             for (let i = 0; i < coordinate.length; i++) {
                 const coord = coordinate[i];
-                swappedCoordinates.push([coord[1], coord[0]]);
+                subarray = [coord[1], coord[0]];
+                swappedCoordinates.push(subarray);
             }
-            return swappedCoordinates;
+            const split_coordinate= splitCoordinate(swappedCoordinates,5)
+            return split_coordinate;
         })
         .catch(error => {
             console.error('Error:', error);
@@ -101,7 +107,7 @@ function getalphashape(lat, lon, battery=100){
         return response.json();})
     .then(data => {
         console.log("data:",data);
-        var colorlist = ['darkgreen', 'yellow', 'red']
+        var colorlist = ['#008000', '#EFFF00', '#FF0000']
         var count = 0
         data.forEach(element => {
             // Check if the element is an empty list
@@ -116,6 +122,34 @@ function getalphashape(lat, lon, battery=100){
         });
     });
     }
+
+
+function splitCoordinate(coordinates) {
+    var result = [];
+    var chunkSize = Math.ceil(coordinates.length / 5);
+
+    for (var i = 0; i < 5; i++) {
+        var start = i * chunkSize;
+        var end = (i + 1) * chunkSize;
+        if (i > 0) {
+            start -= 2;
+        }
+        var subarray = coordinates.slice(start, end).flat();
+        result.push(subarray);
+    }
+
+    return result;
+}
+
+function convertToPairs(array) {
+    var result = [];
+    for (var i = 0; i < array.length; i += 2) {
+        result.push([array[i], array[i + 1]]);
+    }
+    return result;
+}
+
+
 
 async function getchargingstation(lat, lon){
     fetch(`http://127.0.0.1:5000/station?lat=${lat}&lon=${lon}`)
@@ -134,9 +168,15 @@ async function getchargingstation(lat, lon){
                 const coordinates = await getTripCoordinate(element.lat, element.lon);
                 if (coordinates) {
                     console.log("Coordinates:", coordinates);
-                    var polyline = L.polyline(coordinates, {color: 'blue'
-                    ,weight: 5,smoothFactor: 1}).addTo(map); 
-                    show_starting_point(element.lat,element.lon)
+                    // console.log("Split Coordinates:",splitCoordinate(coordinates,5))
+                    var color = ['blue','pink','yellow','green','red']
+                    for (var i = 0;i<coordinates.length;i++){
+                        coordinates_array = convertToPairs(coordinates[i])
+                        var polyline = new L.polyline(coordinates_array, {color: color[i]
+                        ,weight: 5,smoothFactor: 1}).addTo(map); 
+                        show_starting_point(element.lat,element.lon)
+                    }
+                      
                 } else {
                     console.log("Failed to fetch trip coordinates.");
                 }
@@ -145,6 +185,8 @@ async function getchargingstation(lat, lon){
         });
     })
 }
+
+
 
 
 function show_starting_point(lat, lon) {

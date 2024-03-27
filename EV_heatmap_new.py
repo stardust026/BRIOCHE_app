@@ -41,7 +41,7 @@ def draw_points(map_object, list_of_points, layer_name, battery_levels):
         if battery > 70:
             color = 'green'
         elif battery > 35:
-            color = 'yellow'
+            color = 'pink'
         elif battery > 0:
             color = 'red'
         else:

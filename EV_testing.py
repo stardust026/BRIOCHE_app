@@ -130,7 +130,6 @@ def get_destination_coordinates(start_latitude, start_longitude, distance, batte
             dest_latitude = dest_point.latitude
             dest_longitude = dest_point.longitude
             coordinates = getTripCoordinate([start_longitude,start_latitude],[dest_longitude, dest_latitude])
-            print("hi")
             if coordinates != False:
                 break
         if coordinates == False:
