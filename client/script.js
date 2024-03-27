@@ -20,6 +20,13 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
  maxZoom: 20
 }).addTo(map);
 
+const setVisible = (elementOrSelector, visible) => 
+(typeof elementOrSelector === 'string'
+? document.querySelector(elementOrSelector)
+: elementOrSelector
+).style.display = visible ? 'block' : 'none';
+
+
 function getColor(d) {
     var value = parseFloat(d.replace('>', '').replace('%', ''));
     return value === 70 ? "darkgreen" :
@@ -115,13 +122,15 @@ function getalphashape(lat, lon, battery=100){
                 var polygon = L.polygon(element,{
                     color: colorlist[count],
                     fillColor: colorlist[count],
-                    weight: 1
+                    weight: 3
                 }).addTo(map);
             }
             count++;
         });
-    });
-    }
+    }).then(() => {
+        setVisible('#loading', false);
+    })
+}
 
 
 function splitCoordinate(coordinates) {
@@ -164,6 +173,7 @@ async function getchargingstation(lat, lon){
             var icon = L.icon({iconUrl: 'charging_station.png',iconSize: [20, 20]})
             var marker = L.marker([element.lat, element.lon],{icon:icon}).addTo(map);
             marker.addEventListener('click', async function() {
+                setVisible('#loading', true);
                 refresh_shapeAndLine();
                 const coordinates = await getTripCoordinate(element.lat, element.lon);
                 if (coordinates) {
@@ -228,6 +238,7 @@ async function geocodeAddress(address) {
     event.preventDefault();
     // var latitude = document.getElementById('latitude').value;
     // var longitude = document.getElementById('longitude').value;
+    setVisible('#loading', true);
     var addressInput = document.getElementById('address').value;
     var batteryInput = document.getElementById('battery').value;
 
