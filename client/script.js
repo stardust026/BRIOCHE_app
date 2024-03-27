@@ -109,7 +109,7 @@ function getalphashape(lat, lon, battery=100){
                 var polygon = L.polygon(element,{
                     color: colorlist[count],
                     fillColor: colorlist[count],
-                    weight: 1
+                    weight: 3
                 }).addTo(map);
             }
             count++;
