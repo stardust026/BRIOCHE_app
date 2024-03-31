@@ -35,11 +35,16 @@ button[type="submit"] {
     /* Add or modify CSS properties here */
     background-color: #f0f0f0; /* Example background color */
     border-radius: 5px; /* Example border radius */
+    padding: 20px;
+    padding-right: 0px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     top:1%;/* Adjust width as needed */
     right:1%;
     width: 200px;
     position: fixed;
     z-index: 999;
+
 }
 
 #loading {
@@ -54,3 +59,23 @@ button[type="submit"] {
     background-position: center;
   }
 
+#batteryForm {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+}
+
+#batteryInputForm {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}

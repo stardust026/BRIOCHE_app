@@ -1,5 +1,7 @@
 // set starting point coordinate
 var start = [51.0276233, -114.087835];
+var click_lat
+var click_lon
 
 // create a map in the "map" div, set the view to a given place and zoom
 var map = L.map('map').setView(start, 7);
@@ -21,6 +23,28 @@ const setVisible = (elementOrSelector, visible) =>
 ? document.querySelector(elementOrSelector)
 : elementOrSelector
 ).style.display = visible ? 'block' : 'none';
+
+const batteryForm = document.getElementById('batteryForm');
+
+document.getElementById('batteryInputForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); 
+
+    var batteryLevel = document.getElementById('batteryLevel').value;
+
+    setVisible('#loading', true);
+    refresh_shapeAndLine();
+    const coordinates = await getTripCoordinate(click_lat, click_lon);
+    if (coordinates) {
+        console.log("Coordinates:", coordinates);
+        var polyline = L.polyline(coordinates, {color: 'blue'
+        ,weight: 5,smoothFactor: 1}).addTo(map); 
+    } else {
+        console.log("Failed to fetch trip coordinates.");
+    }
+    getalphashape(click_lat, click_lon, batteryLevel);
+
+    batteryForm.style.display = 'none';
+});
 
 
 function getColor(d) {
@@ -139,17 +163,9 @@ async function getchargingstation(lat, lon){
             var icon = L.icon({iconUrl: 'charging_station.png',iconSize: [20, 20]})
             var marker = L.marker([element.lat, element.lon],{icon:icon}).addTo(map);
             marker.addEventListener('click', async function() {
-                setVisible('#loading', true);
-                refresh_shapeAndLine();
-                const coordinates = await getTripCoordinate(element.lat, element.lon);
-                if (coordinates) {
-                    console.log("Coordinates:", coordinates);
-                    var polyline = L.polyline(coordinates, {color: 'blue'
-                    ,weight: 5,smoothFactor: 1}).addTo(map); 
-                } else {
-                    console.log("Failed to fetch trip coordinates.");
-                }
-                getalphashape(element.lat, element.lon);
+                click_lat = element.lat
+                click_lon = element.lon
+                batteryForm.style.display = 'flex';
             });
         });
     })
@@ -193,8 +209,6 @@ async function geocodeAddress(address) {
 
     document.getElementById('coordinateForm').addEventListener('submit', async function(event) {
     event.preventDefault();
-    // var latitude = document.getElementById('latitude').value;
-    // var longitude = document.getElementById('longitude').value;
     setVisible('#loading', true);
     var addressInput = document.getElementById('address').value;
     var batteryInput = document.getElementById('battery').value;

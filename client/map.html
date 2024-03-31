@@ -18,6 +18,13 @@
   <body>
     <div id="loading"></div>
     <div id="map"></div>
+    <div id="batteryForm">
+      <form id="batteryInputForm">
+          <label for="batteryLevel">Please enter your expected recharge level:</label>
+          <input type="number" id="batteryLevel" name="batteryLevel" min="0" max="100" required>
+          <button type="submit">Submit</button>
+      </form>
+    </div>
     <form id="coordinateForm">
       <label for="starting-location">Starting Location:</label>
       <div>
