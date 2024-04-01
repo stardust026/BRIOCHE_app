@@ -67,7 +67,7 @@ button[type="submit"] {
     top: 50%;
     left: 50%;
     justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
+    align-items: flex-end; /* 垂直居中 */
     transform: translate(-50%, -50%);
     z-index: 1001;
 }
@@ -78,4 +78,5 @@ button[type="submit"] {
     border: 1px solid #ccc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
+    margin-bottom: 10%;
 }

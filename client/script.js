@@ -158,13 +158,14 @@ async function getchargingstation(lat, lon){
         }
         return response.json();})
     .then(data => {
-        console.log(data);
         data.forEach(element => {
             var icon = L.icon({iconUrl: 'charging_station.png',iconSize: [20, 20]})
             var marker = L.marker([element.lat, element.lon],{icon:icon}).addTo(map);
             marker.addEventListener('click', async function() {
+                marker.bindPopup(`<b>Charging Station</b><br>${element.name}<br>`).openPopup();
                 click_lat = element.lat
                 click_lon = element.lon
+                map.setView([click_lat,click_lon], 10);
                 batteryForm.style.display = 'flex';
             });
         });
