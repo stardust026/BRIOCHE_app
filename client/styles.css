@@ -33,18 +33,23 @@ button[type="submit"] {
 }
 #coordinateForm {
     /* Add or modify CSS properties here */
-    background-color: #f0f0f0; /* Example background color */
-    border-radius: 5px; /* Example border radius */
+    background-color: rgba(128, 128, 128, 0.5);    border-radius: 5px; /* Example border radius */
     padding: 20px;
     padding-right: 0px;
     border: 1px solid #ccc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     top:1%;/* Adjust width as needed */
-    right:1%;
+    right:2%;
     width: 200px;
     position: fixed;
     z-index: 999;
 
+}
+
+#coordinateForm label {
+    margin-bottom: 8px; /* 调整标签与输入框之间的距离 */
+    font-weight: bold; /* 加粗标签文字 */
+    font-family: Arial, sans-serif;
 }
 
 #loading {
@@ -79,4 +84,30 @@ button[type="submit"] {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     margin-bottom: 10%;
+}
+
+#coordinateForm input[type="text"],
+#coordinateForm input[type="number"] {
+    width: calc(100% - 20px); /* 输入框宽度为父容器宽度减去边距 */
+    padding: 8px; /* 调整输入框内边距 */
+    margin-bottom: 16px; /* 调整输入框之间的距离 */
+    border: 1px solid #ced4da; /* 输入框边框 */
+    border-radius: 3px; /* 输入框圆角 */
+    box-sizing: border-box; /* 输入框包含边框和内边距在内的盒子模型 */
+}
+
+#coordinateForm button[type="submit"] {
+    width: 80%; /* 按钮宽度与父容器相同 */
+    margin-right: 20px;
+    padding: 8px; /* 按钮内边距 */
+    background-color: #007bff; /* 背景颜色 */
+    color: #fff; /* 文字颜色 */
+    border: none; /* 去除边框 */
+    border-radius: 3px; /* 圆角 */
+    cursor: pointer; /* 鼠标样式 */
+    transition: background-color 0.3s; /* 过渡效果 */
+}
+
+#coordinateForm button[type="submit"]:hover {
+    background-color: #0056b3; /* 鼠标悬停时的背景颜色 */
 }
