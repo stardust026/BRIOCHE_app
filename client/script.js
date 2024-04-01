@@ -193,6 +193,7 @@ function refresh_shapeAndLine() {
     })
 }
 
+
 async function geocodeAddress(address) {
     return new Promise((resolve, reject) => {
         var geocoder = new google.maps.Geocoder();
@@ -207,6 +208,14 @@ async function geocodeAddress(address) {
         });
     });
 }
+
+function initAutocomplete() {
+    var autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('address'), {
+            types: ['geocode']
+        });
+}
+
 
     document.getElementById('coordinateForm').addEventListener('submit', async function(event) {
     event.preventDefault();

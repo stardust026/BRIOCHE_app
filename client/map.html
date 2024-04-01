@@ -13,7 +13,7 @@
     />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgEA5siMmjNeIEwDi2hbn_GesFOzHy7_U"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgEA5siMmjNeIEwDi2hbn_GesFOzHy7_U&libraries=places"></script>
   </head>
   <body>
     <div id="loading"></div>
@@ -34,6 +34,7 @@
           id="address"
           name="address"
           placeholder="2922 10 St SW, Calgary"
+          onFocus="initAutocomplete()"
         />
       </div>
       <div>
