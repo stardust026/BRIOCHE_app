@@ -13,6 +13,15 @@ var carIcon = L.icon({
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
+var waypoints = L.icon({
+    iconUrl: 'waypoints.png',
+    iconSize:     [25, 25], // size of the icon
+    iconAnchor:   [22, 22], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+
+var chunk_size = 5
+
 // add an OpenStreetMap tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -34,26 +43,35 @@ document.getElementById('batteryInputForm').addEventListener('submit', async fun
 
     setVisible('#loading', true);
     refresh_shapeAndLine();
+    removeMarkerAtCoordinates(start[0],start[1]);
+    show_marker(start[0],start[1],waypoints);
+    show_marker(click_lat,click_lon,carIcon);
     const coordinates = await getTripCoordinate(click_lat, click_lon);
     if (coordinates) {
-        console.log("Coordinates:", coordinates);
-        var polyline = L.polyline(coordinates, {color: 'blue'
-        ,weight: 5,smoothFactor: 1}).addTo(map); 
+        // console.log("Coordinates:", coordinates);
+        var color = ['#0000FF','#4682B4','#87CEFA','#B0E0E6','#4682B4']
+        for (var i = 0;i<coordinates.length;i++){
+            coordinates_array = convertToPairs(coordinates[i])
+            var polyline = new L.polyline(coordinates_array, {color: color[i]
+            ,weight: 5,smoothFactor: 1}).addTo(map); 
+        }
     } else {
         console.log("Failed to fetch trip coordinates.");
     }
+    start = [click_lat,click_lon]
     getalphashape(click_lat, click_lon, batteryLevel);
-
+    map.setView([click_lat,click_lon], 7);
     batteryForm.style.display = 'none';
+
 });
 
 
 function getColor(d) {
     var value = parseFloat(d.replace('>', '').replace('%', ''));
     return value === 70 ? "darkgreen" :
-           value === 35 ? "yellow" :
-           value === 0 ? "red" : "black";
-}
+        value === 35 ? "yellow" :
+        value === 0 ? "red" : "black";
+    }
 var legend = L.control({position: 'bottomright'});
 legend.onAdd = function (map) {
 
@@ -99,9 +117,11 @@ async function getTripCoordinate(lat, lon) {
             const swappedCoordinates = [];
             for (let i = 0; i < coordinate.length; i++) {
                 const coord = coordinate[i];
-                swappedCoordinates.push([coord[1], coord[0]]);
+                subarray = [coord[1], coord[0]];
+                swappedCoordinates.push(subarray);
             }
-            return swappedCoordinates;
+            const split_coordinate= splitCoordinate(swappedCoordinates,chunk_size)
+            return split_coordinate;
         })
         .catch(error => {
             console.error('Error:', error);
@@ -116,7 +136,9 @@ function getalphashape(lat, lon, battery=100){
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         return response.json();})
-    .then(data => {
+    .then(
+        
+        data => {
         console.log("data:",data);
         var colorlist = ['darkgreen', 'yellow', 'red']
         var count = 0
@@ -136,6 +158,34 @@ function getalphashape(lat, lon, battery=100){
     })
 }
 
+
+function splitCoordinate(coordinates) {
+    var result = [];
+    var chunkSize = Math.ceil(coordinates.length / 5);
+
+    for (var i = 0; i < 5; i++) {
+        var start = i * chunkSize;
+        var end = (i + 1) * chunkSize;
+        if (i > 0) {
+            start -= 2;
+        }
+        var subarray = coordinates.slice(start, end).flat();
+        result.push(subarray);
+    }
+
+    return result;
+}
+
+function convertToPairs(array) {
+    var result = [];
+    for (var i = 0; i < array.length; i += 2) {
+        result.push([array[i], array[i + 1]]);
+    }
+    return result;
+}
+
+
+
 async function getchargingstation(lat, lon){
     fetch(`http://127.0.0.1:5000/station?lat=${lat}&lon=${lon}`)
     .then((response) => {
@@ -147,6 +197,7 @@ async function getchargingstation(lat, lon){
         data.forEach(element => {
             var icon = L.icon({iconUrl: 'charging_station.png',iconSize: [20, 20]})
             var marker = L.marker([element.lat, element.lon],{icon:icon}).addTo(map);
+            
             marker.addEventListener('click', async function() {
                 marker.bindPopup(`<b>Charging Station</b><br>${element.name}<br>`).openPopup();
                 click_lat = element.lat
@@ -159,8 +210,10 @@ async function getchargingstation(lat, lon){
 }
 
 
-function show_starting_point(lat, lon) {
-    L.marker([lat, lon],{icon:carIcon}).addTo(map);
+
+
+function show_marker(lat, lon, picture) {
+    L.marker([lat, lon],{icon:picture}).addTo(map);
 }
 
 function refresh() {
@@ -173,10 +226,27 @@ function refresh() {
 
 function refresh_shapeAndLine() {
     map.eachLayer(function (layer) {
-        if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+        if (layer instanceof L.Polygon) {
             map.removeLayer(layer);
         }
     })
+}
+
+function removeMarkerAtCoordinates(latToRemove, lngToRemove) {
+    // Iterate through all markers on the map
+    map.eachLayer(function(layer) {
+        // Check if the layer is a marker
+        if (layer instanceof L.Marker) {
+            // Get the coordinates of the marker
+            var markerLat = layer.getLatLng().lat;
+            var markerLng = layer.getLatLng().lng;
+
+            // Check if the marker coordinates match the coordinates to remove
+            if (markerLat === latToRemove && markerLng === lngToRemove) {
+                map.removeLayer(layer);
+            }
+        }
+    });
 }
 
 
@@ -217,7 +287,8 @@ function initAutocomplete() {
     start = [latitude, longitude];
     refresh();
     map.setView([latitude, longitude], 7);
-    show_starting_point(latitude, longitude);
+    show_marker(latitude,longitude,carIcon);
+    // show_starting_point(latitude, longitude);
     getalphashape(latitude, longitude, battery);
     await getchargingstation(latitude, longitude);
 })

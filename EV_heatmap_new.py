@@ -41,7 +41,7 @@ def draw_points(map_object, list_of_points, layer_name, battery_levels):
         if battery > 70:
             color = 'green'
         elif battery > 35:
-            color = 'yellow'
+            color = 'pink'
         elif battery > 0:
             color = 'red'
         else:
@@ -103,7 +103,6 @@ def return_alpha_shape(start_latitude,start_longitude, battery=100):
     # center_coordinate = [start_latitude, start_longitude]
     df = generate_waypoints(start_latitude,start_longitude, battery)
     alpha = 0.5
-
     # csv_name = 'EV_data.csv'
     # df = pd.read_csv(csv_name, dtype={'Battery_Level': float})
 

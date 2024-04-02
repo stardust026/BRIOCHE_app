@@ -1,9 +1,12 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request,render_template
 from flask_cors import CORS
 from EV_heatmap_new import return_alpha_shape, get_public_charging_stations
+import os
 
 app = Flask(__name__)
 CORS(app)
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
 @app.route('/')
 def hello():
