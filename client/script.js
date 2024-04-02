@@ -1,7 +1,7 @@
 // set starting point coordinate
 var start = [51.0276233, -114.087835];
-
-var destination = []
+var click_lat
+var click_lon
 
 // create a map in the "map" div, set the view to a given place and zoom
 var map = L.map('map').setView(start, 7);
@@ -34,6 +34,28 @@ const setVisible = (elementOrSelector, visible) =>
 : elementOrSelector
 ).style.display = visible ? 'block' : 'none';
 
+const batteryForm = document.getElementById('batteryForm');
+
+document.getElementById('batteryInputForm').addEventListener('submit', async function(event) {
+    event.preventDefault(); 
+
+    var batteryLevel = document.getElementById('batteryLevel').value;
+
+    setVisible('#loading', true);
+    refresh_shapeAndLine();
+    const coordinates = await getTripCoordinate(click_lat, click_lon);
+    if (coordinates) {
+        console.log("Coordinates:", coordinates);
+        var polyline = L.polyline(coordinates, {color: 'blue'
+        ,weight: 5,smoothFactor: 1}).addTo(map); 
+    } else {
+        console.log("Failed to fetch trip coordinates.");
+    }
+    getalphashape(click_lat, click_lon, batteryLevel);
+
+    batteryForm.style.display = 'none';
+});
+
 
 function getColor(d) {
     var value = parseFloat(d.replace('>', '').replace('%', ''));
@@ -45,22 +67,7 @@ var legend = L.control({position: 'bottomright'});
 legend.onAdd = function (map) {
 
     var div = L.DomUtil.create('div', 'info legend');
-    var categories = ['>70%', '>35%', '>0%'];
-
-    var circleHTML = '<div style="width: 80%;">'; // Opening div tag to wrap circle elements, labels, and categories
-
-    circleHTML += '<div style="font-size: 14px;">' + '<strong>Battery Level</strong>' + '</div>'; // Wrapping the labels
-
-    for (var i = 0; i < categories.length; i++) {
-        var color = getColor(categories[i]);
-        circleHTML +=
-        '<div style="width: 100%; display: flex; align-items: center;">' +
-        '<i class="circle" style="border-radius:50%; padding: 5px; padding-bottom: 5px; background-color:' +  color + '; width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px"></i>' + // Adjusting dimensions of circle
-        '<span style="font-size: 16px;">' + (categories[i] ? categories[i] : '+') + '</span>' + // Adjusting font size of text
-        '</div>';
-    }
-
-    circleHTML += '</div>'; // Closing div tag to wrap circle elements, labels, and categories
+    circleHTML = '<div style="width: 80%;"><div style="font-size: 12px;"><strong>Battery Level</strong></div><div style="width: 100%; display: flex; align-items: center;"><img src="green.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">70%</span></div><div style="width: 100%; display: flex; align-items: center;"><img src="yellow.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">35%</span></div><div style="width: 100%; display: flex; align-items: center;"><img src="red.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">0%</span></div></div>'
 
     div.innerHTML = circleHTML;
     return div;
@@ -178,33 +185,16 @@ async function getchargingstation(lat, lon){
         }
         return response.json();})
     .then(data => {
-        console.log(data);
         data.forEach(element => {
             var icon = L.icon({iconUrl: 'charging_station.png',iconSize: [20, 20]})
             var marker = L.marker([element.lat, element.lon],{icon:icon}).addTo(map);
             
             marker.addEventListener('click', async function() {
-                setVisible('#loading', true);
-                refresh_shapeAndLine();
-                removeMarkerAtCoordinates(start[0],start[1]);
-                show_marker(start[0],start[1],waypoints);
-                show_marker(element.lat,element.lon,carIcon);
-                const coordinates = await getTripCoordinate(element.lat, element.lon);
-                if (coordinates) {
-                    console.log("Coordinates:", coordinates);
-                    // console.log("Split Coordinates:",splitCoordinate(coordinates,5))
-                    
-                    var color = ['#0000FF','#4682B4','#87CEFA','#B0E0E6','#4682B4']
-                    for (var i = 0;i<coordinates.length;i++){
-                        coordinates_array = convertToPairs(coordinates[i])
-                        var polyline = new L.polyline(coordinates_array, {color: color[i]
-                        ,weight: 5,smoothFactor: 1}).addTo(map); 
-                    }
-                } else {
-                    console.log("Failed to fetch trip coordinates.");
-                }
-                start = [element.lat,element.lon]
-                getalphashape(element.lat, element.lon);
+                marker.bindPopup(`<b>Charging Station</b><br>${element.name}<br>`).openPopup();
+                click_lat = element.lat
+                click_lon = element.lon
+                map.setView([click_lat,click_lon], 10);
+                batteryForm.style.display = 'flex';
             });
         });
     })
@@ -266,10 +256,16 @@ async function geocodeAddress(address) {
     });
 }
 
+function initAutocomplete() {
+    var autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('address'), {
+            types: ['geocode']
+        });
+}
+
+
     document.getElementById('coordinateForm').addEventListener('submit', async function(event) {
     event.preventDefault();
-    // var latitude = document.getElementById('latitude').value;
-    // var longitude = document.getElementById('longitude').value;
     setVisible('#loading', true);
     var addressInput = document.getElementById('address').value;
     var batteryInput = document.getElementById('battery').value;
@@ -286,15 +282,5 @@ async function geocodeAddress(address) {
     // show_starting_point(latitude, longitude);
     getalphashape(latitude, longitude, battery);
     await getchargingstation(latitude, longitude);
-   
-    // const coordinates = await getTripCoordinate(latitude, longitude);
-    // if (coordinates) {
-    //     console.log("Coordinates:", coordinates);
-    //     var polyline = L.polyline(coordinates, {color: 'blue'
-    //     ,weight: 5,smoothFactor: 1}).addTo(map); 
-    //     // map.fitBounds(polyline.getBounds()); 
-    // } else {
-    //     console.log("Failed to fetch trip coordinates.");
-    // }
 })
 

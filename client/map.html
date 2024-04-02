@@ -13,24 +13,32 @@
     />
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgEA5siMmjNeIEwDi2hbn_GesFOzHy7_U"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgEA5siMmjNeIEwDi2hbn_GesFOzHy7_U&libraries=places"></script>
   </head>
   <body>
     <div id="loading"></div>
     <div id="map"></div>
+    <div id="batteryForm">
+      <form id="batteryInputForm">
+          <label for="batteryLevel">Enter your recharge level:</label>
+          <input type="number" id="batteryLevel" name="batteryLevel" placeholder="100" min="0" max="100" required>
+          <button type="submit">Submit</button>
+      </form>
+    </div>
     <form id="coordinateForm">
-      <label for="starting-location">Starting Location:</label>
+      <label for="starting-location">START PLAN🚀</label>
       <div>
-        <label for="address">Address:</label>
+        <label for="address">🌍Your Location:</label>
         <input
           type="text"
           id="address"
           name="address"
           placeholder="2922 10 St SW, Calgary"
+          onFocus="initAutocomplete()"
         />
       </div>
       <div>
-        <label for="battery">Initial Battery Level:</label>
+        <label for="battery">🔋Initial Battery Level:</label>
         <input
           type="text"
           id="battery"
