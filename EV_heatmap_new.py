@@ -103,7 +103,6 @@ def return_alpha_shape(start_latitude,start_longitude, battery=100):
     # center_coordinate = [start_latitude, start_longitude]
     df = generate_waypoints(start_latitude,start_longitude, battery)
     alpha = 0.5
-    print(df.head(20))
     # csv_name = 'EV_data.csv'
     # df = pd.read_csv(csv_name, dtype={'Battery_Level': float})
 
@@ -154,21 +153,17 @@ def return_alpha_shape(start_latitude,start_longitude, battery=100):
 
     list = []
     if len(green_points) >= 3:
-        print(green_points)
         green = alphashape.alphashape(green_points, alpha)
-        
         list.append([(i[0], i[1]) for i in green.exterior.coords])
     else:
         list.append([])
         
     if len(yellow_points) >= 3:
-        print(yellow_points)
         yellow = alphashape.alphashape(yellow_points, alpha)
         list.append([(i[0], i[1]) for i in yellow.exterior.coords])
     else:
         list.append([])
     if len(red_points) >= 3:
-        print(red_points)
         red = alphashape.alphashape(red_points, alpha)
         list.append([(i[0], i[1]) for i in red.exterior.coords])
     else:

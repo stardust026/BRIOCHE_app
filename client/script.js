@@ -43,17 +43,26 @@ document.getElementById('batteryInputForm').addEventListener('submit', async fun
 
     setVisible('#loading', true);
     refresh_shapeAndLine();
+    removeMarkerAtCoordinates(start[0],start[1]);
+    show_marker(start[0],start[1],waypoints);
+    show_marker(click_lat,click_lon,carIcon);
     const coordinates = await getTripCoordinate(click_lat, click_lon);
     if (coordinates) {
-        console.log("Coordinates:", coordinates);
-        var polyline = L.polyline(coordinates, {color: 'blue'
-        ,weight: 5,smoothFactor: 1}).addTo(map); 
+        // console.log("Coordinates:", coordinates);
+        var color = ['#0000FF','#4682B4','#87CEFA','#B0E0E6','#4682B4']
+        for (var i = 0;i<coordinates.length;i++){
+            coordinates_array = convertToPairs(coordinates[i])
+            var polyline = new L.polyline(coordinates_array, {color: color[i]
+            ,weight: 5,smoothFactor: 1}).addTo(map); 
+        }
     } else {
         console.log("Failed to fetch trip coordinates.");
     }
+    start = [click_lat,click_lon]
     getalphashape(click_lat, click_lon, batteryLevel);
-
+    map.setView([click_lat,click_lon], 7);
     batteryForm.style.display = 'none';
+
 });
 
 
@@ -111,7 +120,7 @@ async function getTripCoordinate(lat, lon) {
                 subarray = [coord[1], coord[0]];
                 swappedCoordinates.push(subarray);
             }
-            const split_coordinate= splitCoordinate(swappedCoordinates,5)
+            const split_coordinate= splitCoordinate(swappedCoordinates,chunk_size)
             return split_coordinate;
         })
         .catch(error => {
