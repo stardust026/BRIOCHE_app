@@ -118,6 +118,7 @@ async function createPath(){
                 var new_charge = getChargePair(tripdistance,previous_charge)
                 chargelist.push(new_charge)
                 previous_charge = new_charge
+                console.log(previous_charge)
             }
             var polyline = new L.polyline(coordinates_array, {color: color[i]
             ,weight: 5,smoothFactor: 1}).addTo(map); 
@@ -159,17 +160,25 @@ function getStateOfCharge(acceleration, velocity, road_grade) {
 }
 
 async function getElevation(coordinateList) {
-    const coordinate = coordinateList.map(coord => coord.join(',')).join('|');
-    const url = `https://api.open-elevation.com/api/v1/lookup?locations=${coordinate}`;
-    const response = await fetch(url);
-
-    if (response.ok) {
-        const data = await response.json();
-        return data.results;
-    } else {
-        console.log("Response failed, status code:", response.status);
-        return null;
+    const maxRequestSize = 300;
+    const sublists = [];
+    var elevation_data = []; 
+    for (let i = 0; i < coordinateList.length; i += maxRequestSize) {
+        sublists.push(coordinateList.slice(i, i + maxRequestSize));
     }
+    for (let i = 0; i<sublists.length; i++){
+        const coordinate = sublists[i].map(coord => coord.join(',')).join('|');
+        const url = `https://api.open-elevation.com/api/v1/lookup?locations=${coordinate}`;
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            elevation_data = elevation_data.concat(data.results);
+        } else {
+            console.log("Response failed, status code:", response.status);
+            return null;
+        }
+    }
+    return elevation_data;
 }
 
 async function elevationDifference(coordinateList) {
@@ -200,7 +209,6 @@ async function getTripCoordinate(lat, lon) {
     const originStr = origin[0] + ',' + origin[1];
     const destinationStr = destination[0] + ',' + destination[1];
     const coordinates = originStr + ';' + destinationStr;
-    console.log("coordinates:", coordinates);
     return fetch(`https://api.mapbox.com/directions/v5/${profile}/${coordinates}?&steps=true&geometries=geojson&waypoints_per_route=true&overview=full&access_token=pk.eyJ1IjoiYm9yaXN3YWlraW4iLCJhIjoiY2xzY3hycng3MDVlZTJ2cTc1YjZiamZmcyJ9.-UEBrr6yXlE9K8O1voTUkg`)
         .then(response => {
             if (!response.ok) {
@@ -394,13 +402,19 @@ async function getchargingstation(lat, lon){
                 click_lat = element.lat
                 click_lon = element.lon
                 remaining_battery = await createPath()
-                const currentBatteryLabel = document.createElement('label');
-                currentBatteryLabel.setAttribute('for', 'currentBatteryLevel');
-                currentBatteryLabel.textContent = "Current Battery level is: " + Math.round(remaining_battery * 10)/10 + " %";
-                const form = document.getElementById('batteryInputForm');
-                form.insertBefore(currentBatteryLabel, form.firstChild);
-                map.setView([click_lat,click_lon], 10);
-                batteryForm.style.display = 'flex';
+                if (remaining_battery>=0){
+                    const currentBatteryLabel = document.createElement('label');
+                    currentBatteryLabel.setAttribute('for', 'currentBatteryLevel');
+                    currentBatteryLabel.textContent = "Current Battery level is: " + Math.round(remaining_battery * 10)/10 + " %";
+                    const form = document.getElementById('batteryInputForm');
+                    form.insertBefore(currentBatteryLabel, form.firstChild);
+                    map.setView([click_lat,click_lon], 10);
+                    batteryForm.style.display = 'flex';
+                }
+                else {
+                    alert("Not enough battery charge to reach the destination");
+                    return; // Stop further execution
+                }
             });
         });
     })
