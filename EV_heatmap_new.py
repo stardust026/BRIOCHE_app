@@ -10,6 +10,7 @@ import time
 from scipy.interpolate import griddata
 from EV_testing import generate_waypoints
 from flask import Flask, jsonify
+from shapely.geometry import Polygon
 
 
 # Function to get charging stations within a specified radius of a given location.
@@ -152,20 +153,33 @@ def return_alpha_shape(start_latitude,start_longitude, battery=100):
             green_points.append([item[0], item[1]])
 
     list = []
+    print("Length of red_points:",len(red_points))
+    print("Length of yellow_points:",len(yellow_points))
+    print("Length of green_points:",len(green_points))
+
     if len(green_points) >= 3:
         green = alphashape.alphashape(green_points, alpha)
-        list.append([(i[0], i[1]) for i in green.exterior.coords])
+        print("Green Polygon: ",green)
+        if isinstance(green, Polygon):
+            list.append([(i[0], i[1]) for i in green.exterior.coords])
     else:
         list.append([])
-        
+    
+    
     if len(yellow_points) >= 3:
         yellow = alphashape.alphashape(yellow_points, alpha)
-        list.append([(i[0], i[1]) for i in yellow.exterior.coords])
+        print("Yellow Polygon: ",yellow)
+        if isinstance(yellow, Polygon):
+            list.append([(i[0], i[1]) for i in yellow.exterior.coords])
+        # list.append([(i[0], i[1]) for i in yellow.exterior.coords])
     else:
         list.append([])
     if len(red_points) >= 3:
         red = alphashape.alphashape(red_points, alpha)
-        list.append([(i[0], i[1]) for i in red.exterior.coords])
+        print("Red Polygon: ",red)
+        if isinstance(red, Polygon):
+            list.append([(i[0], i[1]) for i in red.exterior.coords])
+        # list.append([(i[0], i[1]) for i in red.exterior.coords])
     else:
         list.append([])
         

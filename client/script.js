@@ -3,6 +3,7 @@ var start = [51.0276233, -114.087835];
 var click_lat
 var click_lon
 var remaining_battery
+var chunk_size = 10
 const BATTERY_CAPACITY = 75000
 const MASS = 2139
 const GRAVITY = 9.8066
@@ -34,8 +35,6 @@ var waypoints = L.icon({
     iconAnchor:   [22, 22], // point of the icon which will correspond to marker's location
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
-
-var chunk_size = 5
 
 // add an OpenStreetMap tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -104,12 +103,14 @@ async function createPath(){
     const coordinates_tmp = await getTripCoordinate(click_lat, click_lon);
     var coordinates = swaplatlng(coordinates_tmp)
     coordinates = splitCoordinate(coordinates,chunk_size)
+    console.log("Coordinates array: ", coordinates)
     var chargelist = []
     // console.log(coordinates)
     if (coordinates) {
         // console.log("Coordinates:", coordinates);
-        var color = ['#0000FF','#4682B4','#87CEFA','#B0E0E6','#4682B4']
+        var color = ['#FE0000','#FE4100','#FE6000','#FE9E00','#FED000','#FEF600','#FEFE00','#C8FE00','#87FE00','#68FE00']
         var previous_charge = remaining_battery
+        console.log("Number of polyline: ", coordinates.length)
         for (var i = 0;i<coordinates.length;i++){
             coordinates_array = convertToPairs(coordinates[i])
             var coordinates_array_swapped = swaplatlng(coordinates_array)
@@ -358,11 +359,11 @@ function getalphashape(lat, lon, battery=100){
 }
 
 
-function splitCoordinate(coordinates) {
+function splitCoordinate(coordinates,size) {
     var result = [];
-    var chunkSize = Math.ceil(coordinates.length / 5);
+    var chunkSize = Math.ceil(coordinates.length / size);
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < size; i++) {
         var start = i * chunkSize;
         var end = (i + 1) * chunkSize;
         if (i > 0) {
