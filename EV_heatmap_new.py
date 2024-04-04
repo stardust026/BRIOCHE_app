@@ -106,7 +106,7 @@ def return_alpha_shape(start_latitude,start_longitude, battery=100):
     alpha = 0.5
     # csv_name = 'EV_data.csv'
     # df = pd.read_csv(csv_name, dtype={'Battery_Level': float})
-
+    df = df.drop_duplicates(subset=['Latitude', 'Longitude'])
     battery_levels = df['Battery_Level'].values.tolist()
 
     all_points = df[['Latitude', 'Longitude']].values.tolist()
@@ -141,6 +141,9 @@ def return_alpha_shape(start_latitude,start_longitude, battery=100):
     red_points = df[(df['Battery_Level'] > 0)]
     red_points = red_points[['Latitude', 'Longitude']].values.tolist()
 
+    # print("Length of red_points:",len(red_points))
+    # print("Length of yellow_points:",len(yellow_points))
+    # print("Length of green_points:",len(green_points))
     # insert the interpolated points into the list of other points
     for item in interpolation_points:
         all_points.append([item[0], item[1]])
@@ -153,9 +156,12 @@ def return_alpha_shape(start_latitude,start_longitude, battery=100):
             green_points.append([item[0], item[1]])
 
     list = []
-    print("Length of red_points:",len(red_points))
-    print("Length of yellow_points:",len(yellow_points))
-    print("Length of green_points:",len(green_points))
+    # print("Length of red_points:",len(red_points))
+    # print("Length of yellow_points:",len(yellow_points))
+    # print("Length of green_points:",len(green_points))
+    # print(red_points)
+    # print(yellow_points)
+    # print(green_points)
 
     if len(green_points) >= 3:
         green = alphashape.alphashape(green_points, alpha)
