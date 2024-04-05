@@ -3,7 +3,8 @@ var start = [51.0276233, -114.087835];
 var click_lat
 var click_lon
 var remaining_battery
-var chunk_size = 10
+// var previous_point_speed
+var chunk_size = 30
 const BATTERY_CAPACITY = 75000
 const MASS = 2139
 const GRAVITY = 9.8066
@@ -18,7 +19,7 @@ const ED = 0.93
 const EM = 0.92
 const EB = 0.9
 var battery_level = ['<10%','<20%','<30%','<40%','<50%','<60%','<70%','<80%','<90%','<100%'];
-var variants = ['#FE0000', '#FE7000', '#FE9E00', '#FEC400', '#FEF600', '#00FEE7', '#00D8FE', '#A9FE00','#00FE9A','#00FE40'];
+var variants = ['#FE0000', '#FE00A5','#FE7000', '#FEC400', '#FEF600', '#00FEE7', '#00D8FE', '#009AFE','#00FE9A','#00FE40'];
 // create a map in the "map" div, set the view to a given place and zoom
 var map = L.map('map').setView(start, 7);
 
@@ -58,9 +59,9 @@ var legend = L.control({position: 'bottomright'});
 legend.onAdd = function (map) {
 
     var div = L.DomUtil.create('div', 'info legend');
-    var circleHTML = '<div style="position:relative; width: 70%;top:150px"><div style="font-size: 18px;"><strong>Battery Level</strong></div><div style="width: 100%; display: flex; align-items: center;"><img src="green.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">>=70%</span></div><div style="width: 100%; display: flex; align-items: center;"><img src="yellow.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">35%-<70%</span></div><div style="width: 100%; display: flex; align-items: center;"><img src="red.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">0%-<35%</span></div></div>'
-    var additionalLegendContent = '<div style="bottom: 0; margin:10%;width: 20%;">' +
-                            '<h4>Color representation</h4>' +
+    var circleHTML = '<div style="position:relative; width: 70%;top:65%;left:10%"><div style="font-size: 18px;"><strong>Battery Level</strong></div><div style="width: 100%; display: flex; align-items: center;"><img src="green.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">>=70%</span></div><div style="width: 100%; display: flex; align-items: center;"><img src="yellow.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">35%-<70%</span></div><div style="width: 100%; display: flex; align-items: center;"><img src="red.png" style="width: 20px; height: 20px; margin-right: 10px;margin-bottom: 5px;margin-top: 5px" /><span style="font-size: 16px;">0%-<35%</span></div></div>'
+    var additionalLegendContent = '<div style="position:relative; margin-right:5%;width: 25%;top:10%">' +
+                            '<h3 style="width:150px">Color Palette on Battery Level</h3>' +
                             '<div class="container text-center">';
 
     battery_level.forEach(function(batteryLevel, index) {
@@ -74,7 +75,6 @@ legend.onAdd = function (map) {
     return div;
 };
 legend.addTo(map);
-
 var legendContainer = legend.getContainer();
 legendContainer.style.display='flex';
 legendContainer.style.width = '200px';
@@ -94,7 +94,7 @@ document.getElementById('batteryInputForm').addEventListener('submit', async fun
     }
     remaining_battery = batteryLevel
     setVisible('#loading', true);
-    // getalphashape(click_lat, click_lon, remaining_battery);
+    getalphashape(click_lat, click_lon, remaining_battery);
     
     map.setView([click_lat,click_lon], 7);
     batteryForm.style.display = 'none';
@@ -103,7 +103,7 @@ document.getElementById('batteryInputForm').addEventListener('submit', async fun
     if (oldLabel) {
         oldLabel.parentNode.removeChild(oldLabel);
     }
-    setVisible('#loading', false);
+    // setVisible('#loading', false);
 });
 
 async function createPath(){
@@ -120,30 +120,30 @@ async function createPath(){
     // console.log(coordinates)
     if (coordinates) {
         // console.log("Coordinates:", coordinates);
-        var color_map = {0:'#FE0000',
-                        10:'#FE7000',
-                        20:'#FE9E00',
-                        30:'#FEC400',
-                        40:'#FEF600',
-                        50:'#00FEE7',
-                        60:'#00D8FE',
-                        70:'#A9FE00',
-                        80:'#00FE9A',
-                        90:'#00FE40'}
+        var color_map = {0:variants[0],
+                        10:variants[1],
+                        20:variants[2],
+                        30:variants[3],
+                        40:variants[4],
+                        50:variants[5],
+                        60:variants[6],
+                        70:variants[7],
+                        80:variants[8],
+                        90:variants[9]}
         var previous_charge = remaining_battery
-        console.log("Number of polyline: ", coordinates.length)
+        var previous_speed = 0
         for (var i = 0;i<coordinates.length;i++){
             coordinates_array = convertToPairs(coordinates[i])
             var coordinates_array_swapped = swaplatlng(coordinates_array)
             var tripdistance =  await getTripDistance(coordinates_array_swapped)
             if (tripdistance){
-                var new_charge = getChargePair(tripdistance,previous_charge)
+                var [new_charge,new_speed] = getChargePair(tripdistance,previous_charge,previous_speed)
                 chargelist.push(new_charge)
                 previous_charge = new_charge
                 console.log(previous_charge)
+                previous_speed = new_speed
             }
             var path_color = color_map[Math.floor(new_charge / 10) * 10];
-            console.log("color: ",path_color)
             var polyline = new L.polyline(coordinates_array, {color: path_color
             ,weight: 7,smoothFactor: 1}).addTo(map); 
         }
@@ -303,21 +303,21 @@ async function getTripDistance(tripCoordinate, profile = 'mapbox/driving-traffic
     return combinedList;
 }
 
-function getChargePair(tripdistance, current_battery_level) {
+function getChargePair(tripdistance, current_battery_level,start_speed) {
     let data_pair = tripdistance;
-    let total_duration = 0;
-    let total_distance = 0;
+    // let total_duration = 0;
+    // let total_distance = 0;
     let previous_charge = current_battery_level;
-    let previous_speed = 0;
+    let previous_speed = start_speed;
 
     for (const data of data_pair) {
         let duration = data[0];
         if (duration === null) {
             duration = 0.0;
         }
-        total_duration += duration;
+        // total_duration += duration;
         let distance = data[1];
-        total_distance += distance;
+        // total_distance += distance;
         let elevation = data[2];
 
         if (duration === 0 || distance === 0) {
@@ -349,7 +349,7 @@ function getChargePair(tripdistance, current_battery_level) {
             previous_speed = velocity;
         }
     }
-    return previous_charge;
+    return [previous_charge,previous_speed];
 }
 
 function getalphashape(lat, lon, battery=100){
