@@ -13,10 +13,7 @@ form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    backdrop-filter: blur(8px) saturate(180%);
-    background-color: rgba(215, 215, 215, 0.75);
-    border-radius: 12px;
-    border: 1px solid rgba(209, 213, 219, 0.3);
+    margin-left: 7%;
 }
 
 label {
@@ -40,18 +37,24 @@ button[type="submit"] {
     border: none;
     cursor: pointer;
 }
-#coordinateForm {
+
+#status-panel {
     /* Add or modify CSS properties here */
     padding: 20px;
     padding-right: 0px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     top:1%;/* Adjust width as needed */
     right:2%;
-    width: 200px;
+    width: 210px;
     position: fixed;
     z-index: 999;
-
+    padding: 6px;
+    backdrop-filter: blur(8px) saturate(180%);
+    background-color: rgba(215, 215, 215, 0.75);
+    border-radius: 12px;
+    border: 1px solid rgba(209, 213, 219, 0.3);
 }
+
 
 #coordinateForm label {
     margin-bottom: 8px; /* 调整标签与输入框之间的距离 */
@@ -99,12 +102,13 @@ button[type="submit"] {
 
 #coordinateForm input[type="number"] {
     width: calc(100% - 20px); /* 输入框宽度为父容器宽度减去边距 */
-    padding: 8px; /* 调整输入框内边距 */
+   
     margin-bottom: 16px; /* 调整输入框之间的距离 */
     border: 1px solid #ced4da; /* 输入框边框 */
     border-radius: 3px; /* 输入框圆角 */
     box-sizing: border-box; /* 输入框包含边框和内边距在内的盒子模型 */
 }
+
 
 #batteryInputForm button[type="submit"] {
     width: 80%; /* 按钮宽度与父容器相同 */

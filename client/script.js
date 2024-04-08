@@ -108,10 +108,6 @@ document.getElementById('batteryInputForm').addEventListener('submit', async fun
 
 async function createPath(){
     setVisible('#loading', true);
-    refresh_shapeAndLine();
-    removeMarkerAtCoordinates(start[0],start[1]);
-    show_marker(start[0],start[1],waypoints);
-    show_marker(click_lat,click_lon,carIcon);
     const coordinates_tmp = await getTripCoordinate(click_lat, click_lon);
     var coordinates = swaplatlng(coordinates_tmp)
     coordinates = splitCoordinate(coordinates,chunk_size)
@@ -138,14 +134,29 @@ async function createPath(){
             var tripdistance =  await getTripDistance(coordinates_array_swapped)
             if (tripdistance){
                 var [new_charge,new_speed] = getChargePair(tripdistance,previous_charge,previous_speed)
+                if (new_charge<0) {
+                    setVisible('#loading', false);
+                    alert("Not enough battery charge to reach the destination");
+                    return -1; // Stop further execution
+                }
                 chargelist.push(new_charge)
                 previous_charge = new_charge
                 console.log(previous_charge)
                 previous_speed = new_speed
             }
-            var path_color = color_map[Math.floor(new_charge / 10) * 10];
-            var polyline = new L.polyline(coordinates_array, {color: path_color
-            ,weight: 7,smoothFactor: 1}).addTo(map); 
+        }
+        if (chargelist[chargelist.length-1]>0){
+            refresh_shapeAndLine();
+            removeMarkerAtCoordinates(start[0],start[1]);
+            show_marker(start[0],start[1],waypoints);
+            show_marker(click_lat,click_lon,carIcon);
+            for (var i = 0;i<chargelist.length;i++){
+                coordinates_array = convertToPairs(coordinates[i])
+                var path_color = color_map[Math.floor(chargelist[i] / 10) * 10];
+                console.log("chargeList: ",path_color," ",chargelist[i])
+                var polyline = new L.polyline(coordinates_array, {color: path_color
+                ,weight: 7,smoothFactor: 1}).addTo(map);
+            } 
         }
     } else {
         console.log("Failed to fetch trip coordinates.");
@@ -425,8 +436,9 @@ async function getchargingstation(lat, lon){
                 marker.bindPopup(`<b>Charging Station</b><br>${element.name}<br>`).openPopup();
                 click_lat = element.lat
                 click_lon = element.lon
-                remaining_battery = await createPath()
-                if (remaining_battery>=0){
+                var result = await createPath()
+                if (result>=0){
+                    remaining_battery = result;
                     const currentBatteryLabel = document.createElement('label');
                     currentBatteryLabel.setAttribute('for', 'currentBatteryLevel');
                     currentBatteryLabel.textContent = "Current Battery level is: " + Math.round(remaining_battery * 10)/10 + " %";
@@ -434,10 +446,7 @@ async function getchargingstation(lat, lon){
                     form.insertBefore(currentBatteryLabel, form.firstChild);
                     map.setView([click_lat,click_lon], 10);
                     batteryForm.style.display = 'flex';
-                }
-                else {
-                    alert("Not enough battery charge to reach the destination");
-                    return; // Stop further execution
+                    
                 }
             });
         });
@@ -466,6 +475,31 @@ function refresh_shapeAndLine() {
         }
     })
 }
+
+
+function hideShowLayer(opacityValue,fillOpacityValue) {
+    map.eachLayer(function (layer) {
+        if (layer instanceof L.Polygon) {
+            layer.setStyle({ // Change style to hide the layer
+                opacity: opacityValue, // Make the layer transparent
+                fillOpacity: fillOpacityValue // Make the layer's fill transparent (if any)
+            });
+        }
+    })
+}
+
+document.getElementById('checkbox').addEventListener('change', function(event) {
+    // Your event handling code here
+    if (event.target.checked) {
+        // Checkbox is checked
+        hideShowLayer(0,0); // checked, hide alpha shape
+        map.setView(start, 8);
+    } else {
+        hideShowLayer(1,0.2);// Checkbox is unchecked, show alpha shape
+        map.setView(start, 7);
+        // You may want to do something else here if needed
+    }
+});
 
 function removeMarkerAtCoordinates(latToRemove, lngToRemove) {
     // Iterate through all markers on the map
