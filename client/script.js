@@ -4,7 +4,7 @@ var click_lat
 var click_lon
 var remaining_battery
 // var previous_point_speed
-var chunk_size = 30
+var chunk_size = 25
 const BATTERY_CAPACITY = 75000
 const MASS = 2139
 const GRAVITY = 9.8066
@@ -41,6 +41,8 @@ var waypoints = L.icon({
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
 }).addTo(map);
+
+
 
 
 const setVisible = (elementOrSelector, visible) => 
@@ -146,10 +148,11 @@ async function createPath(){
             }
         }
         if (chargelist[chargelist.length-1]>0){
-            refresh_shapeAndLine();
+            refresh_shape();
             removeMarkerAtCoordinates(start[0],start[1]);
             show_marker(start[0],start[1],waypoints);
-            show_marker(click_lat,click_lon,carIcon);
+            var marker = show_marker(click_lat,click_lon,carIcon);
+            show_battery_level(marker)
             for (var i = 0;i<chargelist.length;i++){
                 coordinates_array = convertToPairs(coordinates[i])
                 var path_color = color_map[Math.floor(chargelist[i] / 10) * 10];
@@ -457,7 +460,8 @@ async function getchargingstation(lat, lon){
 
 
 function show_marker(lat, lon, picture) {
-    L.marker([lat, lon],{icon:picture}).addTo(map);
+    var marker = L.marker([lat, lon],{icon:picture}).addTo(map);
+    return marker
 }
 
 function refresh() {
@@ -468,7 +472,7 @@ function refresh() {
     });
 }
 
-function refresh_shapeAndLine() {
+function refresh_shape() {
     map.eachLayer(function (layer) {
         if (layer instanceof L.Polygon) {
             map.removeLayer(layer);
@@ -478,25 +482,40 @@ function refresh_shapeAndLine() {
 
 
 function hideShowLayer(opacityValue,fillOpacityValue) {
+    var hasPolygons = false; // Flag to check if any polygon layers are present
     map.eachLayer(function (layer) {
         if (layer instanceof L.Polygon) {
+            hasPolygons = true; // Set the flag to true since at least one polygon layer is found
             layer.setStyle({ // Change style to hide the layer
                 opacity: opacityValue, // Make the layer transparent
                 fillOpacity: fillOpacityValue // Make the layer's fill transparent (if any)
             });
         }
-    })
+    });
+
+    if (!hasPolygons) {
+        alert("Alpha shape is not yet created");
+        return 0;
+    }
+    return 1;
 }
 
 document.getElementById('checkbox').addEventListener('change', function(event) {
     // Your event handling code here
+    var result = 0;
     if (event.target.checked) {
         // Checkbox is checked
-        hideShowLayer(0,0); // checked, hide alpha shape
-        map.setView(start, 8);
+        result = hideShowLayer(0,0); // checked, hide alpha shape
+        if (result  == 1){
+            map.setView(start, 8);
+        }
+        else event.target.checked = false;
     } else {
-        hideShowLayer(1,0.2);// Checkbox is unchecked, show alpha shape
-        map.setView(start, 7);
+        result = hideShowLayer(1,0.2);// Checkbox is unchecked, show alpha shape
+        if (result  == 1){
+            map.setView(start, 7);
+        }
+        else event.target.checked = true;
         // You may want to do something else here if needed
     }
 });
@@ -557,9 +576,26 @@ function initAutocomplete() {
     remaining_battery = battery
     refresh();
     map.setView([latitude, longitude], 7);
-    show_marker(latitude,longitude,carIcon);
+    var marker = show_marker(latitude,longitude,carIcon);
+    show_battery_level(marker)
     // show_starting_point(latitude, longitude);
     getalphashape(latitude, longitude, remaining_battery);
     await getchargingstation(latitude, longitude);
 })
+
+//showing the remaining battery when pointing to the car
+function show_battery_level(marker){
+    marker.on('mouseover', function(e) {
+        if (e.target.options.icon === carIcon) {
+            e.target.bindPopup(`<b>Current battery of the vehicle: </b><br>${remaining_battery}<br>`).openPopup();
+        }
+    });
+    
+    // Add mouseout event to hide popup only for markers with customIcon
+    marker.on('mouseout', function(e) {
+        if (e.target.options.icon === carIcon) {
+            e.target.closePopup();
+        }
+    });
+}
 
