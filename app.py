@@ -19,14 +19,18 @@ def get_alpha_shape():
     lon = float(request.args.get('lon'))
     battery = float(request.args.get('battery')) 
     processed_data = return_alpha_shape(lat,lon,battery)
-    return jsonify(processed_data)
+    response = jsonify(processed_data)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 @app.route('/station')
 def get_station():
     lat = float(request.args.get('lat'))
     lon = float(request.args.get('lon'))
     processed_data = get_public_charging_stations(lat, lon)
-    return jsonify(processed_data)
+    response = jsonify(processed_data)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 if __name__ == '__main__':

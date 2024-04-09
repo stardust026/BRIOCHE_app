@@ -124,7 +124,7 @@ def getChargePair(tripdistance, current_battery_level):
 def get_destination_coordinates(start_latitude, start_longitude, distance, battery_level):
     
     combined_list = []
-    for i in range(0, 360, 30):
+    for i in range(0, 360, 60):
         for k in range(distance, 50, -75):
             dest_point = geodesic(kilometers=k).destination((start_latitude, start_longitude), i)
             dest_latitude = dest_point.latitude
