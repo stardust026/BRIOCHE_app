@@ -13,7 +13,7 @@ def hello():
     hello = "Hello, World!"
     return jsonify(hello)
 
-@app.route('/alpha')
+@app.route('/alpha', methods=['GET'])
 def get_alpha_shape():
     lat = float(request.args.get('lat'))
     lon = float(request.args.get('lon'))
@@ -23,7 +23,7 @@ def get_alpha_shape():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
-@app.route('/station')
+@app.route('/station', methods=['GET'])
 def get_station():
     lat = float(request.args.get('lat'))
     lon = float(request.args.get('lon'))
