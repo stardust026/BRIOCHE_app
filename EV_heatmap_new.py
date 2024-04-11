@@ -103,7 +103,7 @@ def draw_starting_point(map_object, coordinate):
 def return_alpha_shape(start_latitude,start_longitude, battery=100):
     # center_coordinate = [start_latitude, start_longitude]
     df = generate_waypoints(start_latitude,start_longitude, battery)
-    alpha = 0.5
+    alpha = 0.3
     # csv_name = 'EV_data.csv'
     # df = pd.read_csv(csv_name, dtype={'Battery_Level': float})
     df = df.drop_duplicates(subset=['Latitude', 'Longitude'])

@@ -3,8 +3,9 @@ var start = [51.0276233, -114.087835];
 var click_lat
 var click_lon
 var remaining_battery
+var chargingStationMarkers = {}
 // var previous_point_speed
-var chunk_size = 25
+var chunk_size = 10
 const BATTERY_CAPACITY = 75000
 const MASS = 2139
 const GRAVITY = 9.8066
@@ -37,13 +38,47 @@ var waypoints = L.icon({
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
+var charging_station = L.icon({
+    iconUrl: 'charging_station.png',iconSize: [20, 20]
+})
+
 // add an OpenStreetMap tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
 }).addTo(map);
 
-
-
+map.on('click', async function(e){
+    var isExistPolygon = 0
+    map.eachLayer(function (layer) {
+        if (layer instanceof L.Polygon) {
+            isExistPolygon = 1
+        }
+    })
+    if (isExistPolygon == 1){
+        var coord = e.latlng;
+        click_lat = coord.lat;
+        click_lon = coord.lng;
+        console.log("You clicked the map at latitude: " + click_lat + " and longitude: " + click_lon);
+        var clickedCoordinates = [click_lat, click_lon].toString();
+        var result = await createPath()
+        if (result>=0){
+            remaining_battery = result;
+            if (chargingStationMarkers.hasOwnProperty(clickedCoordinates)){
+                const currentBatteryLabel = document.createElement('label');
+                currentBatteryLabel.setAttribute('for', 'currentBatteryLevel');
+                currentBatteryLabel.textContent = "Current Battery level is: " + Math.round(remaining_battery * 10)/10 + " %";
+                const form = document.getElementById('batteryInputForm');
+                form.insertBefore(currentBatteryLabel, form.firstChild);
+                map.setView([start[0],start[1]], 10);
+                batteryForm.style.display = 'flex';
+            }
+            setVisible('#loading', true);
+            getalphashape(remaining_battery);
+            map.setView([click_lat,click_lon], 7);  
+        }
+    }
+});
+    
 
 const setVisible = (elementOrSelector, visible) => 
 (typeof elementOrSelector === 'string'
@@ -73,7 +108,7 @@ legend.onAdd = function (map) {
     additionalLegendContent += '</div>' +
     '</div>';
 
-    div.innerHTML =additionalLegendContent+ circleHTML;
+    div.innerHTML =additionalLegendContent+circleHTML;
     return div;
 };
 legend.addTo(map);
@@ -96,7 +131,7 @@ document.getElementById('batteryInputForm').addEventListener('submit', async fun
     }
     remaining_battery = batteryLevel
     setVisible('#loading', true);
-    getalphashape(click_lat, click_lon, remaining_battery);
+    getalphashape(remaining_battery);
     
     map.setView([click_lat,click_lon], 7);
     batteryForm.style.display = 'none';
@@ -111,6 +146,8 @@ document.getElementById('batteryInputForm').addEventListener('submit', async fun
 async function createPath(){
     setVisible('#loading', true);
     const coordinates_tmp = await getTripCoordinate(click_lat, click_lon);
+    // console.log(coordinates_tmp)
+    // if (!coordinates_tmp) return -1;
     var coordinates = swaplatlng(coordinates_tmp)
     coordinates = splitCoordinate(coordinates,chunk_size)
     console.log("Coordinates array: ", coordinates)
@@ -247,6 +284,7 @@ async function getTripCoordinate(lat, lon) {
     const originStr = origin[0] + ',' + origin[1];
     const destinationStr = destination[0] + ',' + destination[1];
     const coordinates = originStr + ';' + destinationStr;
+
     return fetch(`https://api.mapbox.com/directions/v5/${profile}/${coordinates}?&steps=true&geometries=geojson&waypoints_per_route=true&overview=full&access_token=pk.eyJ1IjoiYm9yaXN3YWlraW4iLCJhIjoiY2xzY3hycng3MDVlZTJ2cTc1YjZiamZmcyJ9.-UEBrr6yXlE9K8O1voTUkg`)
         .then(response => {
             if (!response.ok) {
@@ -365,24 +403,24 @@ function getChargePair(tripdistance, current_battery_level,start_speed) {
     }
     return [previous_charge,previous_speed];
 }
-
-function getalphashape(lat, lon, battery=100){
+function getalphashape(battery=100){
+    lat = start[0]
+    lon = start[1]
     fetch(`http://127.0.0.1:5000/alpha?lat=${lat}&lon=${lon}&battery=${battery}`)
     .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return response.json();})
-    .then(
-        
-        data => {
-        console.log("data:",data);
-        var colorlist = ['darkgreen', 'yellow', 'red']
-        var count = 0
+        return response.json();
+    })
+    .then(async data => {
+        console.log("data:", data);
+        var colorlist = ['darkgreen', 'yellow', 'red'];
+        var count = 0;
         data.forEach(element => {
             // Check if the element is an empty list
             if (element.length > 0) {
-                var polygon = L.polygon(element,{
+                var polygon = L.polygon(element, {
                     color: colorlist[count],
                     fillColor: colorlist[count],
                     weight: 3
@@ -390,9 +428,12 @@ function getalphashape(lat, lon, battery=100){
             }
             count++;
         });
-    }).then(() => {
+        await getchargingstation();
         setVisible('#loading', false);
     })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
 
 
@@ -423,7 +464,18 @@ function convertToPairs(array) {
 
 
 
-async function getchargingstation(lat, lon){
+async function getchargingstation(){
+    lat = start[0]
+    lon = start[1]
+    //clear all the existing charging station
+    map.eachLayer(function(layer) {
+    // Check if the layer is a marker and its icon option is set to charging_station
+    if (layer instanceof L.Marker && layer.options.icon === charging_station) {
+        // Remove the marker from the map
+        map.removeLayer(layer);
+    }
+});
+    chargingStationMarkers = []
     fetch(`http://127.0.0.1:5000/station?lat=${lat}&lon=${lon}`)
     .then((response) => {
         if (!response.ok) {
@@ -432,9 +484,8 @@ async function getchargingstation(lat, lon){
         return response.json();})
     .then(data => {
         data.forEach(element => {
-            var icon = L.icon({iconUrl: 'charging_station.png',iconSize: [20, 20]})
-            var marker = L.marker([element.lat, element.lon],{icon:icon}).addTo(map);
-            
+            chargingStationMarkers[[element.lat, element.lon].toString()] = marker;
+            var marker = show_marker(element.lat,element.lon,charging_station)
             marker.addEventListener('click', async function() {
                 marker.bindPopup(`<b>Charging Station</b><br>${element.name}<br>`).openPopup();
                 click_lat = element.lat
@@ -447,9 +498,8 @@ async function getchargingstation(lat, lon){
                     currentBatteryLabel.textContent = "Current Battery level is: " + Math.round(remaining_battery * 10)/10 + " %";
                     const form = document.getElementById('batteryInputForm');
                     form.insertBefore(currentBatteryLabel, form.firstChild);
-                    map.setView([click_lat,click_lon], 10);
+                    map.setView([start[0],start[1]], 10);
                     batteryForm.style.display = 'flex';
-                    
                 }
             });
         });
@@ -558,6 +608,7 @@ function initAutocomplete() {
         document.getElementById('address'), {
             types: ['geocode']
         });
+    
 }
 
 
@@ -576,18 +627,17 @@ function initAutocomplete() {
     remaining_battery = battery
     refresh();
     map.setView([latitude, longitude], 7);
-    var marker = show_marker(latitude,longitude,carIcon);
+    var marker = show_marker(start[0],start[1],carIcon);
     show_battery_level(marker)
     // show_starting_point(latitude, longitude);
-    getalphashape(latitude, longitude, remaining_battery);
-    await getchargingstation(latitude, longitude);
+    getalphashape(remaining_battery);
 })
 
 //showing the remaining battery when pointing to the car
 function show_battery_level(marker){
     marker.on('mouseover', function(e) {
         if (e.target.options.icon === carIcon) {
-            e.target.bindPopup(`<b>Current battery of the vehicle: </b><br>${remaining_battery}<br>`).openPopup();
+            e.target.bindPopup(`<b>Current battery level of the vehicle: </b><br>${Math.round(remaining_battery * 10)/10}%<br>`).openPopup();
         }
     });
     
