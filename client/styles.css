@@ -62,6 +62,12 @@ button[type="submit"] {
     font-family: Arial, sans-serif;
 }
 
+#starting-location{
+    margin-bottom: 8px; /* 调整标签与输入框之间的距离 */
+    font-weight: bold; /* 加粗标签文字 */
+    font-family: Arial, sans-serif;
+}
+
 #loading {
     display: none;
     position: fixed;

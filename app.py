@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request,render_template
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from EV_heatmap_new import return_alpha_shape, get_public_charging_stations
 import os
@@ -13,17 +13,17 @@ def hello():
     hello = "Hello, World!"
     return jsonify(hello)
 
-@app.route('/alpha')
+@app.route('/alpha', methods=['GET'])
 def get_alpha_shape():
     lat = float(request.args.get('lat'))
     lon = float(request.args.get('lon'))
     battery = float(request.args.get('battery')) 
-    processed_data = return_alpha_shape(lat,lon,battery)
+    processed_data = return_alpha_shape(lat, lon, battery)
     response = jsonify(processed_data)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
-@app.route('/station')
+@app.route('/station', methods=['GET'])
 def get_station():
     lat = float(request.args.get('lat'))
     lon = float(request.args.get('lon'))
@@ -31,7 +31,6 @@ def get_station():
     response = jsonify(processed_data)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
-
 
 if __name__ == '__main__':
     app.run(debug=True)

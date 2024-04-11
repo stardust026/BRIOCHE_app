@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Simple Map</title>
+    <title>Reachability Map</title>
     <!-- Leaflet CSS -->
     <link
       rel="stylesheet"
@@ -27,7 +27,7 @@
     </div>
     <div id ="status-panel">
       <form id="coordinateForm">
-        <label for="starting-location">START PLAN🚀</label>
+        <div id="starting-location">START PLAN🚀</div>
         <div>
           <label for="address">🌍Your Location:</label>
           <input
@@ -36,6 +36,7 @@
             name="address"
             placeholder="2922 10 St SW, Calgary"
             onFocus="initAutocomplete()"
+            autocomplete="address"
           />
         </div>
         <div>
@@ -50,7 +51,7 @@
         <button type="submit">Submit</button>
       </form>
       <div style="display: flex;">
-        <input name="checkbox" type="checkbox" id="checkbox" />
+        <input name="checkbox" type="checkbox" id="checkbox"/>
         <p style="margin-left: 4%;">Hide Alpha Shape?</p>
       </div>
     </div>
